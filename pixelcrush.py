@@ -11,7 +11,7 @@ SIZE = (1024, 1024)
 CACHE_FILENAME = 'place.data'
 HASH_ALGORITHM = hashlib.sha256
 HASH_BYTES = 32
-POST_STRUCT = struct.Struct('<HH3B16s32s')  # X, Y, R, G, B, Nonce, Hash
+POST_STRUCT = struct.Struct('<HH3B16s' + str(HASH_BYTES) + 's')  # X, Y, R, G, B, Nonce, Hash
 ADMIN_HASH = b'\x8f\xec\x8f\x2e\xb9\x43\x3f\xb2\xf5\xf8\xa6\x39\x38\x30\x69\x0d\x71\x6d\xed\x53\x45\x37\x62\xbf\x99\x74\x53\xf4\x25\xec\x44\xbf'
 
 
