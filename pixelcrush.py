@@ -105,8 +105,6 @@ def post_pixel():
     except struct.error:
         return make_response('Expected {} bytes'.format(POST_STRUCT.size), 400)
 
-    print(x, y, r, g, b, nonce, hash_expected)
-
     if x >= SIZE[0] or y >= SIZE[1]:
         return make_response('Out of {} bounds'.format(SIZE), 400)
 
