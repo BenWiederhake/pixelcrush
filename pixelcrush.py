@@ -69,7 +69,7 @@ class CrushState:
             data.extend(px)
         for h in self.hardness:
             data.extend(h)
-        with open(time.strftime('save_%s.data'), 'wb') as fp:
+        with open(time.strftime('/tmp/pixelcrush_save_%s.data'), 'wb') as fp:
             fp.write(data)
 
 
