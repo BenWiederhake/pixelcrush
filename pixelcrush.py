@@ -4,6 +4,7 @@ from flask import Flask, g, jsonify, make_response, redirect, request, Response
 from PIL import Image
 import hashlib
 import io
+import os
 import struct
 import time
 
@@ -73,8 +74,11 @@ class CrushState:
             data.extend(px)
         for h in self.hardness:
             data.extend(h)
-        with open(time.strftime('/tmp/pixelcrush_save_%s.data'), 'wb') as fp:
+        filename = time.strftime('pixelcrush_save_%s.data')
+        filename = os.path.realpath(filename)
+        with open(filename, 'wb') as fp:
             fp.write(data)
+        return filename
 
 
 app = Flask(__name__)
@@ -142,9 +146,9 @@ def do_save():
     if actual_hash != ADMIN_HASH:
         return make_response('', 404)
 
-    app.crusher.save()
+    filename = app.crusher.save()
 
-    return ':)'
+    return filename
 
 
 @app.before_first_request
