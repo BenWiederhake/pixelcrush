@@ -12,7 +12,7 @@ HASH_ALGORITHM = hashlib.sha256
 HASH_BYTES = 32
 PAYLOAD_STRUCT = struct.Struct('<HH3B')
 POST_STRUCT = struct.Struct('<HH3B16s' + str(HASH_BYTES) + 's')  # X, Y, R, G, B, Nonce, Hash
-URL = 'http://127.0.0.1:5000/post'
+URL = 'https://gebirge.uber.space/post'
 
 
 def incr_nonce(nonce):

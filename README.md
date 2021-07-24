@@ -28,6 +28,12 @@ TODO: The administrator can easily interfere and ease up or overwrite certain re
 
 ## Usage
 
+### Watch
+
+You can retrieve the [current state, as a PNG](https://gebirge.uber.space/place.png). Keep in mind
+that this is a place that the internet can manipulate, and contents do not necessarily reflect my
+own opinions. I reserve the right to wipe anything that I wish.
+
 ### Getting started
 
 Usage: `./example/putpixel.py X Y R G B`
@@ -53,7 +59,7 @@ sys	0m0,021s
 
 The API is as simple as I could possibly make it:
 
-Just POST some bytes to `/post`. Which bytes? Well, X, Y, R, G, B, nonce, and hash:
+Just POST some bytes to `https://gebirge.uber.space/post`. Which bytes? Well, X, Y, R, G, B, nonce, and hash:
 - X and Y are 2 bytes each, little-endian, and must be less than 1024 (the size of the image)
 - R, G, B: Single bytes
 - Nonce: Any 16 bytes that you like.
@@ -66,7 +72,7 @@ The server will respond with any of:
 - HTTP 409, "conflict": The server provides the 32 bytes of the "better" hash, so you can immediately use it to find better candidates. Better luck next time.
 - HTTP 200: Game on! :D
 
-Come over to [TODO: PUBLISH MY SERVER] to try it out! :D
+Come over to [TODO: MAKE AND PUBLISH WEB INTERFACE] to try it out! :D
 
 ### Other API
 
