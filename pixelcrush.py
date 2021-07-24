@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from flask import Flask, g, jsonify, make_response, redirect, request, Response
+from flask import abort, Flask, g, jsonify, make_response, redirect, request, Response
 from PIL import Image
 import hashlib
 import io
@@ -13,6 +13,7 @@ CACHE_FILENAME = 'place.data'
 HASH_ALGORITHM = hashlib.sha256
 HASH_BYTES = 32
 POST_STRUCT = struct.Struct('<HH3B16s' + str(HASH_BYTES) + 's')  # X, Y, R, G, B, Nonce, Hash
+OVERWRITE_STRUCT = struct.Struct('<HH3B')  # X, Y, R, G, B
 ADMIN_HASH = b'\x8f\xec\x8f\x2e\xb9\x43\x3f\xb2\xf5\xf8\xa6\x39\x38\x30\x69\x0d\x71\x6d\xed\x53\x45\x37\x62\xbf\x99\x74\x53\xf4\x25\xec\x44\xbf'
 PROJECT_HOMEPAGE = 'https://github.com/BenWiederhake/pixelcrush'
 
@@ -65,6 +66,10 @@ class CrushState:
         if old_hash >= new_hash:
             return old_hash
         self.hardness[index] = new_hash
+        self.img.putpixel(xy, rgb)
+        self.png_data = None
+
+    def overwrite(self, xy, rgb):
         self.img.putpixel(xy, rgb)
         self.png_data = None
 
@@ -144,11 +149,32 @@ def post_pixel():
 def do_save():
     actual_hash = HASH_ALGORITHM(request.args.get('secret', '').encode()).digest()
     if actual_hash != ADMIN_HASH:
-        return make_response('', 404)
+        abort(404)
 
     filename = app.crusher.save()
 
     return filename
+
+
+# $ SECRET=%49%20%74%6f%6c%64%20%79%6f%75%3a%20%49%27%6d%20%6e%6f%74%20%74%68%61%74%20%73%74%75%70%69%64%21 ./example/overwritepixel.py 500 501 255 255 255
+@app.route("/overwrite_pixel", methods=["POST"])
+def overwrite_pixel():
+    actual_hash = HASH_ALGORITHM(request.args.get('secret', '').encode()).digest()
+    if actual_hash != ADMIN_HASH:
+        abort(404)
+
+    request_data = request.get_data()
+    try:
+        x, y, r, g, b = OVERWRITE_STRUCT.unpack(request_data)
+    except struct.error:
+        return make_response('Expected {} bytes'.format(OVERWRITE_STRUCT.size), 400)
+
+    if x >= SIZE[0] or y >= SIZE[1]:
+        return make_response('Out of {} bounds'.format(SIZE), 400)
+
+    app.crusher.overwrite((x, y), (r, g, b))
+
+    return ':)'
 
 
 @app.before_first_request

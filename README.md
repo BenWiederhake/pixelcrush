@@ -17,8 +17,6 @@ harder to find a better nonce.
 
 TODO: Play along with the [fancy web interface!](example.com)
 
-TODO: The administrator can easily interfere and ease up or overwrite certain regions.
-
 ## Table of Contents
 
 - [Usage](#usage)
@@ -82,13 +80,12 @@ Other endpoints are:
 - `POST /save`: Can be used by the administrator to save the current state (RGB data + hardness) to a new file.
 
 Future endpoints:
-- `POST /overwrite_pixel`: Can be used by the administrator to forcibly overwrite a single pixel. This is useful to erase nasty stuff.
+- `POST /overwrite_pixel`: Can be used by the administrator to forcibly overwrite a single pixel. This is useful to erase nasty stuff. The helper `./example/overwritepixel.py` might be handy.
 
 ## TODOs
 
 * Some web interface to interact with it
 * Maybe websockets to see updates in real-time?
-* That administrator command
 
 ## NOTDOs
 
