@@ -132,10 +132,10 @@ def do_save():
     return ':)'
 
 
-def run():
+@app.before_first_request
+def init_crusher():
     app.crusher = CrushState()
-    app.run()
 
 
 if __name__ == "__main__":
-    run()
+    app.run()
