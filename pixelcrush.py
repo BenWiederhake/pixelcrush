@@ -26,6 +26,57 @@ def chunk_list(l, chunk_size):
     return [l[i * chunk_size:(i + 1) * chunk_size] for i in range(len(l) // chunk_size)]
 
 
+def count_leading_ones(pixel_hash):
+    leading_ones = 0
+    for b in pixel_hash:
+        if b == 255:
+            leading_ones += 8
+            continue
+        # Or better:
+        # leading_ones += __builtin_clz(255 - b);
+        # FIXME: Come on! This should only be two instructions!
+        if b >= 0b11111110:
+            leading_ones += 7
+        elif b >= 0b11111100:
+            leading_ones += 6
+        elif b >= 0b11111000:
+            leading_ones += 5
+        elif b >= 0b11110000:
+            leading_ones += 4
+        elif b >= 0b11100000:
+            leading_ones += 3
+        elif b >= 0b11000000:
+            leading_ones += 2
+        elif b >= 0b10000000:
+            leading_ones += 1
+        break
+
+    return leading_ones
+
+
+def to_heat_rgb(pixel_hash):
+    leading_ones = count_leading_ones(pixel_hash)
+    leading_ones = max(0, leading_ones - 4)
+
+    if leading_ones <= 15:
+        # 0-4: black
+        # to 15: gradient to red
+        return (leading_ones * 17, 0, 0)
+    elif leading_ones <= 30:
+        # to 30: gradient to yellow
+        return (255, (leading_ones - 15) * 17, 0)
+    elif leading_ones <= 45:
+        # to 45: gradient to white
+        return (255, 255, (leading_ones - 30) * 17)
+    elif leading_ones <= 60:
+        # to 60: gradient to blue
+        x = 255 - (leading_ones - 30) * 17
+        return (x, x, 255)
+    else:
+        # beyond: magenta
+        return (255, 0, 255)
+
+
 class CrushState:
     def __init__(self):
         expected_length = SIZE[0] * SIZE[1] * (3 * 1 + HASH_BYTES)
@@ -40,7 +91,9 @@ class CrushState:
         self.img.putdata([tuple(rgb) for rgb in chunk_list(data[:start_hardness], 3)])
         self.hardness = [bytes(c) for c in chunk_list(data[start_hardness:], HASH_BYTES)]
         self.png_data = None
+        self.heatmap_data = None
         self.produce_png()
+        self.produce_heatmap()
         print('Initialized.')
 
     def produce_png(self):
@@ -53,6 +106,21 @@ class CrushState:
     def compute_png(self):
         b = io.BytesIO()
         self.img.save(b, 'png')
+        b.seek(0)
+        return b.read()
+
+    def produce_heatmap(self):
+        data = self.heatmap_data
+        if data is None:
+            data = self.compute_heatmap()
+            self.heatmap_data = data
+        return data
+
+    def compute_heatmap(self):
+        b = io.BytesIO()
+        img = Image.new('RGB', SIZE)
+        img.putdata([to_heat_rgb(h) for h in self.hardness])
+        img.save(b, 'png')
         b.seek(0)
         return b.read()
 
@@ -103,6 +171,12 @@ def favicon():
 def place_png():
     png_data = app.crusher.produce_png()
     return Response(png_data, mimetype='image/png')
+
+
+@app.route("/heatmap.png")
+def heatmap_png():
+    heatmap_data = app.crusher.produce_heatmap()
+    return Response(heatmap_data, mimetype='image/png')
 
 
 # $ echo -ne 'a\0' | curl -s 'http://127.0.0.1:5000/row_hardness' --data-binary @- | hd

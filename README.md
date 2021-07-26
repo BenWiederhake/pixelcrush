@@ -76,10 +76,9 @@ Come over to [TODO: MAKE AND PUBLISH WEB INTERFACE] to try it out! :D
 
 Other endpoints are:
 - `GET /place.png`: Returns a nice PNG of the current RGB data. Isn't it nice? :D
+- `GET /heatmap.png`: Returns a nice PNG representing a heatmap of the difficulty of all pixels. The color indicates how many leading ones are required: The gradient goes black (0-4) to red (15) to yellow (30) to white (45) to blue (60), and then sharply becomes magenta (>= 61). Thanks @rbxb, who [suggested it](https://github.com/BenWiederhake/pixelcrush/issues/1)! :D
 - `POST /row_hardness`: You provide two bytes (y-coordinate), and the server responds with 32K worth of hashes; one for each pixel in the row. Feel free to use this to optimize your hashing efforts! This way you don't have to make 1024*1024 calls to `/post`
 - `POST /save`: Can be used by the administrator to save the current state (RGB data + hardness) to a new file.
-
-Future endpoints:
 - `POST /overwrite_pixel`: Can be used by the administrator to forcibly overwrite a single pixel. This is useful to erase nasty stuff. The helper `./example/overwritepixel.py` might be handy.
 
 ## TODOs
