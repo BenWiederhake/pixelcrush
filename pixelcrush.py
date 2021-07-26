@@ -134,12 +134,12 @@ class CrushState:
         if old_hash >= new_hash:
             return old_hash
         self.hardness[index] = new_hash
-        self.img.putpixel(xy, rgb)
-        self.png_data = None
+        self.overwrite(xy, rgb)
 
     def overwrite(self, xy, rgb):
         self.img.putpixel(xy, rgb)
         self.png_data = None
+        self.heatmap_data = None
 
     def save(self):
         data = bytearray()
