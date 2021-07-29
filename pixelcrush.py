@@ -198,23 +198,40 @@ def row_hardness():
 @app.route("/post", methods=["POST"])
 def post_pixel():
     request_data = request.get_data()
-    try:
-        x, y, r, g, b, nonce, hash_expected = POST_STRUCT.unpack(request_data)
-    except struct.error:
-        return make_response('Expected {} bytes'.format(POST_STRUCT.size), 400)
+    if len(request_data) % POST_STRUCT.size != 0 or len(request_data) == 0:
+        return make_response('Expected {} bytes (or multiple thereof)'.format(POST_STRUCT.size), 400)
 
-    if x >= SIZE[0] or y >= SIZE[1]:
-        return make_response('Out of {} bounds'.format(SIZE), 400)
+    response = bytearray()
+    any_failed = False
+    for i in range(len(request_data) // POST_STRUCT.size):
+        single_request = request_data[i * POST_STRUCT.size:(i + 1) * POST_STRUCT.size]
+        try:
+            x, y, r, g, b, nonce, hash_expected = POST_STRUCT.unpack(single_request)
+        except struct.error:
+            return make_response('How did you do that? o.O', 400)
 
-    hash_actual = HASH_ALGORITHM(request_data[:-HASH_BYTES]).digest()
-    if hash_actual != hash_expected:
-        return make_response('Hash mismatch', 400)
+        if x >= SIZE[0] or y >= SIZE[1]:
+            return make_response('Out of {} bounds'.format(SIZE), 400)
 
-    hash_best = app.crusher.try_set((x, y), (r, g, b), hash_actual)
+        hash_actual = HASH_ALGORITHM(single_request[:-HASH_BYTES]).digest()
+        if hash_actual != hash_expected:
+            return make_response('Hash mismatch', 400)
 
-    if hash_best is not None:
-        return make_response(hash_best, 409)  # HTTP 409 Conflict; inform the caller about the currently best hash
+        hash_best = app.crusher.try_set((x, y), (r, g, b), hash_actual)
 
+        if hash_best is None:
+            # Success!
+            response.extend(hash_actual)
+        else:
+            any_failed = True
+            response.extend(hash_best)
+
+    if any_failed:
+        return make_response(response, 409)  # HTTP 409 Conflict; inform the caller about the currently best hash
+
+    # Elide all successful responses. This is for two reasons:
+    # - Maximum compatibility with old (single-shot) implementation
+    # - Avoid unnecessary traffic
     return ''
 
 
