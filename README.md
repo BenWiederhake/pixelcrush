@@ -34,7 +34,15 @@ own opinions. I reserve the right to wipe anything that I wish.
 
 ### Getting started
 
-Usage: `./example/putpixel.py X Y R G B`
+#### Installation
+
+All required packages are listed in requirements.txt. Running `pip install -r requirements.txt` will complete the setup, 
+assuming an up-to-date Python 3 installation. 
+
+
+#### Usage
+
+`./example/putpixel.py X Y R G B`
 
 Simple, isn't it? This way, you can paint individual pixels. It's written in python, and not particularly convenient, clever or fast. However, it demonstrates how something like this can be used.
 

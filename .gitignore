@@ -1,1 +1,10 @@
 *.data
+
+# IntelliJ-IDE metadata
+*.idea
+
+# Python virtual environment
+venv
+
+# environment variables
+.env
