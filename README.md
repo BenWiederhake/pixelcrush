@@ -15,7 +15,9 @@ pixels have a rather low diffculty, and finding a "better" nonce is easy. Howeve
 and the pixel is overwritten again and again, and thus the difficulty goes up and up, it becomes
 harder to find a better nonce.
 
-TODO: Play along with the [fancy web interface!](example.com)
+I no longer run the original server, but here's the final state of the "place":
+
+![](final.data.png)
 
 ## Table of Contents
 
@@ -28,9 +30,8 @@ TODO: Play along with the [fancy web interface!](example.com)
 
 ### Watch
 
-You can retrieve the [current state, as a PNG](https://gebirge.uber.space/place.png). Keep in mind
-that this is a place that the internet can manipulate, and contents do not necessarily reflect my
-own opinions. I reserve the right to wipe anything that I wish.
+You can retrieve the current state, as a PNG: `http://your.server/place.png` . Keep in mind
+that this is a place that the internet can manipulate. See the `/overwrite_pixel` API to reset stuff as an admin, if necessary.
 
 ### Getting started
 
@@ -38,7 +39,6 @@ own opinions. I reserve the right to wipe anything that I wish.
 
 All required packages are listed in requirements.txt. Running `pip install -r requirements.txt` will complete the setup, 
 assuming an up-to-date Python 3 installation. 
-
 
 #### Usage
 
@@ -65,7 +65,7 @@ sys	0m0,021s
 
 The API is as simple as I could possibly make it:
 
-Just POST some bytes to `https://gebirge.uber.space/post`. Which bytes? Well, X, Y, R, G, B, nonce, and hash:
+Just POST some bytes to `https://your.server/post`. Which bytes? Well, X, Y, R, G, B, nonce, and hash:
 - X and Y are 2 bytes each, little-endian, and must be less than 1024 (the size of the image)
 - R, G, B: Single bytes
 - Nonce: Any 16 bytes that you like.
